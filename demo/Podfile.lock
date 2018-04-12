@@ -1,0 +1,16 @@
+PODS:
+  - TypewriterView (1.0.0)
+
+DEPENDENCIES:
+  - TypewriterView (from `../../TypewriterView/`)
+
+EXTERNAL SOURCES:
+  TypewriterView:
+    :path: ../../TypewriterView/
+
+SPEC CHECKSUMS:
+  TypewriterView: f31371a5bce9662e903e702b00801a8380289878
+
+PODFILE CHECKSUM: d00bcafc286114cf9e7cbb916dbe563e41d0a374
+
+COCOAPODS: 1.4.0

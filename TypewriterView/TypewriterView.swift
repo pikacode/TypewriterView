@@ -8,14 +8,7 @@
 
 import UIKit
 
-fileprivate let WRITING_SPEED = 0.02
-fileprivate let UNDO_SPEED = 0.02
-fileprivate let CURSOR_BLINK_SPEED = 0.4
-fileprivate let CURSOR_BLINK_REPEATS = 4
-fileprivate let CURSOR_BLINK_CHARACTER: Character = "I"
-
-
-@IBDesignable class TypewriterView: UITextView {
+public class TypewriterView: UITextView {
     
     public var completionBlock = {}
     public var isFinished: Bool {
@@ -23,7 +16,7 @@ fileprivate let CURSOR_BLINK_CHARACTER: Character = "I"
     }
     public var isPausing = false
     
-    public func write(_ text: String, speed: TimeInterval = WRITING_SPEED) {
+    public func write(_ text: String, speed: TimeInterval = 0.02) {
         tasks.append(.write(text, speed))
         writeNext()
     }
@@ -34,7 +27,7 @@ fileprivate let CURSOR_BLINK_CHARACTER: Character = "I"
         writeNext()
     }
     
-    public func cursorBlink(_ character: Character = CURSOR_BLINK_CHARACTER, speed: TimeInterval = CURSOR_BLINK_SPEED, repeats: Int = CURSOR_BLINK_REPEATS){
+    public func cursorBlink(_ character: Character = "I", speed: TimeInterval = 0.4, repeats: Int = 4){
         let rep = repeats%2 == 0 ? repeats : repeats + 1//必须是偶数次
         tasks.append(.cursorBlink(character, speed, rep))
         writeNext()
@@ -63,7 +56,7 @@ fileprivate let CURSOR_BLINK_CHARACTER: Character = "I"
         tasks.removeAll()
     }
     
-    public func undo(_ length: Int, speed: TimeInterval = UNDO_SPEED){
+    public func undo(_ length: Int, speed: TimeInterval = 0.02){
         tasks.append(.undo(length, speed))
     }
     
@@ -183,4 +176,5 @@ fileprivate let CURSOR_BLINK_CHARACTER: Character = "I"
     }
     
 }
- 
+
+

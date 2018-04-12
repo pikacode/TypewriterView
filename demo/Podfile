@@ -1,0 +1,10 @@
+
+use_frameworks!
+
+target 'demo’ do
+
+
+   pod 'TypewriterView', :path => '../../TypewriterView/'
+
+
+end

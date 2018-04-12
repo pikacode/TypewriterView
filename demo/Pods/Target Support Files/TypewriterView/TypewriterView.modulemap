@@ -1,0 +1,6 @@
+framework module TypewriterView {
+  umbrella header "TypewriterView-umbrella.h"
+
+  export *
+  module * { export * }
+}
