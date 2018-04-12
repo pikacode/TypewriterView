@@ -11,6 +11,8 @@ A simple but usefull typewriter view subclass of `UITextView`.
 
 ## Screenshot
 
+![](src/1.gif)
+
 
 
 ## Installation
@@ -19,6 +21,8 @@ A simple but usefull typewriter view subclass of `UITextView`.
 	target 'YourTargetName' do
 	  pod 'TypewriterView'
 	end
+
+
 
 ## Usage
 
