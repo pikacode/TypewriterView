@@ -8,10 +8,23 @@
 
 import UIKit
 
+fileprivate let WRITING_SPEED = 0.02
+fileprivate let UNDO_SPEED = 0.02
+fileprivate let CURSOR_BLINK_SPEED = 0.4
+fileprivate let CURSOR_BLINK_REPEATS = 4
+fileprivate let CURSOR_BLINK_CHARACTER: Character = "I"
+
+
 @IBDesignable class TypewriterView: UITextView {
     
-    public func write(_ text: String) {
-        tasks.append(.write(text))
+    public var completionBlock = {}
+    public var isFinished: Bool {
+        return !(isPlaying || tasks.count > 0)
+    }
+    public var isPausing = false
+    
+    public func write(_ text: String, speed: TimeInterval = WRITING_SPEED) {
+        tasks.append(.write(text, speed))
         writeNext()
     }
     
@@ -21,16 +34,19 @@ import UIKit
         writeNext()
     }
     
-    public func cursorBlink(){
-        tasks.append(.cursorBlink)
+    public func cursorBlink(_ character: Character = CURSOR_BLINK_CHARACTER, speed: TimeInterval = CURSOR_BLINK_SPEED, repeats: Int = CURSOR_BLINK_REPEATS){
+        let rep = repeats%2 == 0 ? repeats : repeats + 1//必须是偶数次
+        tasks.append(.cursorBlink(character, speed, rep))
         writeNext()
     }
     
     public func pause(){
+        isPausing = true
         timer?.fireDate = Date.distantFuture
     }
     
     public func resume(){
+        isPausing = false
         timer?.fireDate = Date()
     }
     
@@ -39,6 +55,7 @@ import UIKit
         timer?.invalidate()
         timer = nil
         tasks.removeAll()
+        completionBlock()
     }
     
     //discard unwrite contents, but keeps writing current text
@@ -46,24 +63,33 @@ import UIKit
         tasks.removeAll()
     }
     
-    public var writingSpeed = 0.02
-    public var cursorBlinkRepeatTime = 4
-    public var cursorBlinkSpeed = 0.4
+    public func undo(_ length: Int, speed: TimeInterval = UNDO_SPEED){
+        tasks.append(.undo(length, speed))
+    }
     
     
+    /********************************************************************/
+    
+    
+
     
     private var cursorBlinkRepeatTimeLast = 0
-    
     private var tasks = [Task]()
     private var isPlaying : Bool { return timer != nil }
+    private var undoLast = 0
+    private var cursorBlinkCharacter: Character = "I"
+    private var timer: Timer?
+    private var currerentText = ""
+    private var currerentTask = Task.write("", 0)
     
     private enum Task {
-        case cursorBlink
+        case cursorBlink(Character, TimeInterval, Int)
         case clear
-        case write(String)
+        case write(String, TimeInterval)
+        case undo(Int, TimeInterval)
         var text: String {
             switch self {
-            case .write(let t):
+            case .write(let t, _):
                 return t
             default:
                 return ""
@@ -73,36 +99,45 @@ import UIKit
     
     private func writeNext() {
         if isPlaying { return }
-        if tasks.count == 0 { return }
+        if tasks.count == 0 {
+            completionBlock()
+            return
+        }
         currerentTask = tasks.removeFirst()
         
         var selector: Selector
-        var timeInterval = writingSpeed
+        var timeInterval: TimeInterval = 0.02
         
         switch currerentTask {
-        case .cursorBlink:
+        case .cursorBlink(let character, let speed, let repeats):
+
+            cursorBlinkRepeatTimeLast = repeats
+            timeInterval = speed
+            cursorBlinkCharacter = character
             selector = #selector(cursorBlinkSelector)
-            cursorBlinkRepeatTimeLast = cursorBlinkRepeatTime
-            timeInterval = 0.2
             
         case .clear:
+            
             selector = #selector(clearSelector)
             
-        case .write(let text):
+        case .write(let text, let speed):
+            
             currerentText = text
+            timeInterval = speed
             selector = #selector(writeSelector)
-
+            
+        case .undo(let count, let speed):
+            
+            undoLast = count
+            timeInterval = speed
+            selector = #selector(undoSelector)
+            
         }
         
         if timer == nil {
             timer = Timer.scheduledTimer(timeInterval: timeInterval, target: self, selector: selector, userInfo: nil, repeats: true)
         }
     }
-    
-    private var timer: Timer?
-    
-    private var currerentText = ""
-    private var currerentTask = Task.write("")
     
     @objc private func writeSelector() {
         self.text = self.text?.appending(String(currerentText.removeFirst()))
@@ -122,14 +157,25 @@ import UIKit
     
     @objc private func cursorBlinkSelector() {
         var temp = text ?? ""
-        if let last = temp.last, last == "I" {
+        if let last = temp.last, last == cursorBlinkCharacter {
             temp = String(temp.dropLast())
         }else{
-            temp.append("I")
+            temp.append(cursorBlinkCharacter)
         }
         text = temp
         cursorBlinkRepeatTimeLast = cursorBlinkRepeatTimeLast - 1
         if cursorBlinkRepeatTimeLast == 0 {
+            timer?.invalidate()
+            timer = nil
+            writeNext()
+        }
+    }
+    
+    @objc private func undoSelector() {
+        if undoLast > 0 && self.text.count > 0 {
+            self.text.removeLast()
+            undoLast = undoLast - 1
+        } else {
             timer?.invalidate()
             timer = nil
             writeNext()

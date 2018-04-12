@@ -13,66 +13,54 @@ class ViewController: UIViewController {
     @IBOutlet weak var typewriterView: TypewriterView!
     @IBOutlet weak var button: UIButton!
     
-    var count = 0
     
     @IBAction func btnAction(_ sender: Any) {
         
-        var content = ""
-        
-        switch count {
-        case 0:
-            
-            typewriterView.clear()
-            content = "typewriterView.write(\"I start writing now!\")\n"
-            + "=> I start writing now!\n\n"
-            typewriterView.write(content)
-            
-        case 1:
-            
-            content = "typewriterView.write(\"I'm keep writing...\")\n"
-            + "typewriterView.write(\"I'm writing 2\")\n"
-            typewriterView.write(content)
-            typewriterView.write("=> I'm keep writing...\n")
-            typewriterView.write("=> I'm writing 2\n\n")
-            
-            button.setTitle("clear", for: .normal)
-            
-        case 2:
-            
-            
-            content = "// now, clear!\n"
-                + "typewriterView.clear()"
-            typewriterView.write(content)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                self.typewriterView.clear()
-            }
-            
-            button.setTitle("cursor blink", for: .normal)
-
-        case 3:
-            
-            content = "typewriterView.write(\"I'm thinking...\")"
-                + "typewriterView.cursorBlink()"
-                + "typewriterView.write(\"I'm thinking again...\")"
-                + "typewriterView.cursorBlink()"
-            
-            typewriterView.write("I'm thinking...")
-            typewriterView.cursorBlink()
-            typewriterView.write("\nI'm thinking again...")
-            typewriterView.cursorBlink()
-            typewriterView.write("\nI'm thinking again and again...")
-            typewriterView.cursorBlink()
-            typewriterView.cursorBlink()
-            typewriterView.cursorBlink()
-            
-            count = 0
-            button.setTitle("replay", for: .normal)
-            
-            break
-        default:break
+        if !typewriterView.isFinished && !typewriterView.isPausing {
+            typewriterView.pause()
+            button.setTitle("Resume", for: .normal)
+            return
+        } else if !typewriterView.isFinished && typewriterView.isPausing {
+            typewriterView.resume()
+            button.setTitle("Pause", for: .normal)
+            return
         }
         
-        count = count + 1
+        button.setTitle("Pause", for: .normal)
+        
+        typewriterView.completionBlock = { [weak self] in
+            self?.button.setTitle("replay", for: .normal)
+        }
+       
+        typewriterView.clear()
+        
+        typewriterView.write("《Snow White》", speed: 0.4)
+        typewriterView.write("\n\n")
+        typewriterView.cursorBlink("⬜️", speed: 0.3, repeats: 5)
+        
+        typewriterView.write("Long long ago...\n", speed: 0.1)
+        typewriterView.cursorBlink("I")
+        
+        typewriterView.write("There was 1️⃣ Queen and 9️⃣ Dwarfs.\n\n", speed: 0.005)
+        typewriterView.cursorBlink()
+        
+        typewriterView.write("(Ouch!!!)")
+        typewriterView.cursorBlink("🙀")
+        typewriterView.undo(10, speed: 0.02)
+        typewriterView.undo(5, speed: 0.08)
+        typewriterView.undo(4, speed: 0.15)
+        typewriterView.cursorBlink("❌")
+        typewriterView.undo(5, speed: 0.3)
+        
+        typewriterView.cursorBlink()
+        typewriterView.write("and 7️⃣ Dwarfs.\n\n", speed: 0.2)
+        
+        typewriterView.cursorBlink()
+        typewriterView.write("The Queen was sitting at the window. There was snow outside in the garden--snow on the hill and in the lane, snow on the huts and on the trees: all things were white with snow.\n\n")
+        
+        typewriterView.cursorBlink()
+        typewriterView.write("She had some cloth in her hand and a needle. The cloth in her hand was as white as the snow...")
+        
     }
     
 }
