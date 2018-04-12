@@ -52,7 +52,7 @@ public class TypewriterView: UITextView {
     }
     
     //discard unwrite contents, but keeps writing current text
-    public func clearUnwriteContents(){
+    public func discardUnwriteContents(){
         tasks.removeAll()
     }
     

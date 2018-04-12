@@ -4,7 +4,7 @@ Pod::Spec.new do |s|
 
   s.name         = "TypewriterView"
   s.version      = "1.0.0"
-  s.summary      = "A simple but usefull typewriter view."
+  s.summary      = "A simple but usefull typewriter view subclass of UITextView."
   s.homepage     = "https://github.com/pikacode/TypewriterView"
   s.license      = "MIT"
   s.author	 = { "pikacode" => "pikacode@qq.com" }
